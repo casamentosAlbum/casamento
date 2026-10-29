@@ -115,6 +115,14 @@
                 <i class="fa-solid fa-chevron-right"></i>
             </button>
 
+            <!-- Campo de Digitar e Ir para a Página -->
+            <div class="flex items-center bg-white border border-roseGold/30 rounded-full px-2 py-0.5 shadow-inner">
+                <input type="number" id="jumpPageInput" min="1" placeholder="Pág" class="w-10 text-xs text-center outline-none bg-transparent font-serif" onkeydown="if(event.key==='Enter') jumpToPage()">
+                <button onclick="jumpToPage()" class="text-roseGold hover:text-roseGold/80 text-xs px-1" title="Ir para a página">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
             <div class="h-3 w-[1px] bg-gray-300 mx-0.5"></div>
 
             <!-- Botão de Áudio com Ícone Dinâmico (Tocar/Mudo) -->
@@ -180,14 +188,14 @@
                     <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
-                <!-- CAMPO DE QUANTIDADE DE PÁGINAS E BOTÃO ADICIONAR -->
+                <!-- GERENCIAR PÁGINAS SEM LIMITE -->
                 <div class="mb-4 p-3 bg-softRose/30 rounded-xl border border-roseGold/30">
                     <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-1.5"><i class="fa-solid fa-book-open"></i> Gerenciar Páginas do Álbum</label>
                     <div class="flex items-center gap-2">
-                        <input type="number" id="cfgTotalPages" min="1" max="100" class="w-24 px-3 py-2 border rounded-lg text-sm font-bold text-center text-roseGold bg-white" value="2">
+                        <input type="number" id="cfgTotalPages" min="1" class="w-24 px-3 py-2 border rounded-lg text-sm font-bold text-center text-roseGold bg-white" value="2">
                         <span class="text-xs text-gray-600 flex-1">Páginas ativas no livro</span>
                         <button type="button" onclick="incrementPageCount()" class="bg-roseGold hover:bg-roseGold/90 text-white text-xs px-3 py-2 rounded-lg font-medium shadow transition flex items-center gap-1">
-                            <i class="fa-solid fa-plus">+ Adicionar Página</i>
+                            <i class="fa-solid fa-plus"></i> + Adicionar Página
                         </button>
                     </div>
                 </div>
@@ -426,6 +434,25 @@
         function handlePrevPage() { 
             tryPlayAudio(); 
             if (pageFlip) pageFlip.flipPrev(); 
+        }
+
+        // Função para pular direto para a página digitada
+        function jumpToPage() {
+            tryPlayAudio();
+            const inputVal = parseInt(document.getElementById('jumpPageInput').value);
+            if (isNaN(inputVal)) return;
+            if (pageFlip) {
+                const totalPages = pageFlip.getPageCount();
+                // A página 1 digitada pelo usuário corresponde ao índice 2 ou equivalente (Capa = 0, Padrinhos = 1, Pág 1 = 2...)
+                // No pageFlip, o índice da página numerada `pNum` é geralmente `pNum + 1` (considerando capa e padrinhos antes)
+                let targetIndex = inputVal + 1;
+                if (inputVal <= 0) targetIndex = 0; // Capa
+                if (targetIndex < totalPages) {
+                    pageFlip.flip(targetIndex);
+                } else {
+                    pageFlip.flip(totalPages - 1);
+                }
+            }
         }
 
         function startSlideshow() {
