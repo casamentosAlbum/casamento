@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#B76E79">
+    <title>Foto Evento</title>
+    <meta name="description" content="Livro de Casamento Digital Animado">
+    <meta property="og:title" content="Foto Evento">
+    <meta property="og:description" content="Livro de Casamento Digital Animado">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://i.postimg.cc/NGy27p9M/Whats-App-Image-2026-09-02-at-09-28-55-removebg-preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Foto Evento">
+    <meta name="twitter:description" content="Livro de Casamento Digital Animado">
+    <meta name="twitter:image" content="https://i.postimg.cc/NGy27p9M/Whats-App-Image-2026-09-02-at-09-28-55-removebg-preview.png">
+    <link id="siteFavicon" rel="icon" href="">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Page Flip JS -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#B76E79',
+                        softRose: '#F7E7CE',
+                        blushPink: '#FFE4E1',
+                        cream: '#FFFDD0',
+                        goldAccent: '#D4AF37',
+                        champagne: '#F3E5AB'
+                    },
+                    fontFamily: {
+                        script: ['"Great Vibes"', 'cursive'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Montserrat"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg-page-color: #fffdfa;
+            --text-page-color: #374151;
+        }
+        body {
+            background: linear-gradient(135deg, #fffaf5 0%, #f7e7ce 50%, #ffe4e1 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .page {
+            background-color: var(--bg-page-color) !important;
+            color: var(--text-page-color) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0e0d6;
+        }
+        .hard-cover {
+            background: linear-gradient(145deg, #ffffff 0%, #f7e7ce 100%);
+        }
+        .book-shadow {
+            box-shadow: 0 20px 40px rgba(183, 110, 121, 0.25);
+        }
+        #bookWrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Elemento de áudio global -->
+    <audio id="bgAudio" loop></audio>
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-roseGold/20 py-2.5 px-4 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 id="headerTitle" class="font-script text-2xl md:text-3xl text-roseGold font-bold truncate max-w-[180px] sm:max-w-xs">Nosso Casamento</h1>
+            <div class="flex items-center gap-2">
+                <button onclick="requestPasswordForConfig()" class="text-xs bg-white hover:bg-softRose text-gray-700 px-2.5 py-1.5 rounded-full border border-roseGold/30 transition flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-gear text-roseGold"></i> <span class="hidden sm:inline">Configurar</span>
+                </button>
+                <button onclick="openUploadModal()" class="text-xs bg-roseGold hover:bg-roseGold/90 text-white px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> <span>Foto</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex flex-col items-center justify-center p-2 sm:p-4 md:p-8">
+        
+        <!-- Controls & Slideshow Navbar -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-4 bg-white/80 backdrop-blur-sm p-1.5 rounded-full border border-roseGold/20 shadow-sm max-w-full">
+            <button id="prevBtn" onclick="handlePrevPage()" class="bg-white hover:bg-roseGold hover:text-white text-roseGold px-2.5 py-1 rounded-full shadow transition border border-roseGold/20 text-xs flex items-center gap-1">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            
+            <span id="pageIndicator" class="font-serif text-xs text-gray-700 font-semibold px-2 py-0.5">
+                Capa
+            </span>
+
+            <button id="nextBtn" onclick="handleNextPage()" class="bg-white hover:bg-roseGold hover:text-white text-roseGold px-2.5 py-1 rounded-full shadow transition border border-roseGold/20 text-xs flex items-center gap-1">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <div class="h-3 w-[1px] bg-gray-300 mx-0.5"></div>
+
+            <!-- Botão de Áudio com Ícone Dinâmico (Tocar/Mudo) -->
+            <button id="audioControlBtn" onclick="toggleAudio()" class="bg-softRose hover:bg-roseGold hover:text-white text-roseGold px-3 py-1 rounded-full shadow transition border border-roseGold/30 text-xs flex items-center gap-1.5 font-medium">
+                <i id="audioIcon" class="fa-solid fa-volume-xmark"></i> <span id="audioLabel">Música</span>
+            </button>
+
+            <div class="h-3 w-[1px] bg-gray-300 mx-0.5"></div>
+
+            <button id="playSlideshowBtn" onclick="startSlideshow()" class="bg-roseGold hover:bg-roseGold/90 text-white px-2.5 py-1 rounded-full text-xs shadow flex items-center gap-1 transition">
+                <i class="fa-solid fa-play"></i> <span class="hidden xs:inline">Play</span>
+            </button>
+            <button id="stopSlideshowBtn" onclick="stopSlideshow()" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded-full text-xs shadow hidden items-center gap-1 transition">
+                <i class="fa-solid fa-pause"></i>
+            </button>
+            <button id="exitSlideshowBtn" onclick="exitSlideshow()" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded-full text-xs shadow hidden items-center gap-1 transition">
+                <i class="fa-solid fa-stop"></i> <span class="hidden xs:inline">Sair</span>
+            </button>
+        </div>
+
+        <!-- Book Container -->
+        <div id="bookWrapper" class="relative w-full flex justify-center items-center my-2" onclick="tryPlayAudio()">
+            <div id="myBook" class="book-shadow rounded-lg"></div>
+        </div>
+    </main>
+
+    <!-- Modal de Zoom -->
+    <div id="zoomModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
+        <div class="relative w-full max-w-4xl max-h-[95vh] flex flex-col items-center justify-center">
+            <button onclick="closeZoomModal()" class="absolute top-2 right-2 md:-top-10 md:right-0 text-white text-3xl hover:text-roseGold z-50 bg-black/50 md:bg-transparent px-3 py-1 rounded-full"><i class="fa-solid fa-xmark"></i></button>
+            <div class="relative flex items-center justify-center w-full">
+                <button onclick="zoomPrev(event)" class="absolute left-1 md:-left-12 text-white text-2xl md:text-3xl hover:text-roseGold bg-black/60 p-2.5 rounded-full transition z-10"><i class="fa-solid fa-chevron-left"></i></button>
+                <img id="zoomedImage" src="" class="max-w-[85vw] max-h-[75vh] object-contain rounded-lg shadow-2xl border-2 border-white">
+                <button onclick="zoomNext(event)" class="absolute right-1 md:-right-12 text-white text-2xl md:text-3xl hover:text-roseGold bg-black/60 p-2.5 rounded-full transition z-10"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+            <p id="zoomedCaption" class="text-white font-serif text-sm md:text-base mt-3 text-center px-4"></p>
+        </div>
+    </div>
+
+    <!-- Modal de Configuração -->
+    <div id="configModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-roseGold/30 max-h-[90vh] overflow-y-auto">
+            <h3 class="font-serif text-xl sm:text-2xl font-bold text-roseGold mb-2">Configurações do Álbum</h3>
+            <form id="configForm" onsubmit="saveConfig(event)">
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Supabase URL</label>
+                    <input type="url" id="supabaseUrlInput" placeholder="https://xyz.supabase.co" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Supabase Anon Key</label>
+                    <input type="text" id="supabaseKeyInput" placeholder="eyJhbGciOi..." class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Título da Capa</label>
+                    <input type="text" id="cfgTitle" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Subtítulo / Categoria</label>
+                    <input type="text" id="cfgSubtitle" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Descrição / Citação</label>
+                    <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Borda da Capa</label>
+                        <input type="color" id="cfgBorderColor" class="w-full h-9 px-1 py-1 border rounded-lg cursor-pointer" value="#D4AF37">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Fundo das Páginas</label>
+                        <input type="color" id="cfgBgColor" class="w-full h-9 px-1 py-1 border rounded-lg cursor-pointer" value="#fffdfa">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Cor das Letras</label>
+                        <input type="color" id="cfgTextColor" class="w-full h-9 px-1 py-1 border rounded-lg cursor-pointer" value="#374151">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Imagem Central da Capa</label>
+                    <input type="file" id="coverImageInput" accept="image/*" class="w-full text-xs text-gray-500 file:py-1.5 file:px-2 file:rounded file:border-0 file:bg-softRose file:text-roseGold">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Música de Fundo (Upload MP3 ou Link)</label>
+                    <input type="file" id="musicFileInput" accept="audio/*" class="w-full text-xs text-gray-500 mb-1.5 file:py-1.5 file:px-2 file:rounded file:border-0 file:bg-softRose file:text-roseGold">
+                    <input type="url" id="cfgMusic" placeholder="Ou cole a URL direta do áudio (MP3)" class="w-full px-3 py-1.5 border rounded-lg text-xs">
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeConfigModal()" class="px-4 py-2 text-sm text-gray-600">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-roseGold text-white rounded-lg shadow-md font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Config Slots -->
+    <div id="pageConfigModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-roseGold/30 text-center">
+            <h3 class="font-serif text-lg font-bold text-roseGold mb-2">Configurar Slots da Página</h3>
+            <input type="hidden" id="targetPageNumber">
+            <select id="pageSlotsSelect" class="w-full px-3 py-2 border rounded-lg text-sm mb-5">
+                <option value="1">1 Foto (Destaque)</option>
+                <option value="2">2 Fotos (Dupla)</option>
+                <option value="4">4 Fotos (Mosaico)</option>
+                <option value="6">6 Fotos (Galeria)</option>
+            </select>
+            <div class="flex justify-end gap-3">
+                <button onclick="closePageConfigModal()" class="px-4 py-2 text-sm text-gray-600">Cancelar</button>
+                <button onclick="savePageSlots()" class="px-5 py-2 text-sm bg-roseGold text-white rounded-lg">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Padrinhos -->
+    <div id="godparentsModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-roseGold/30">
+            <h3 class="font-serif text-xl font-bold text-roseGold mb-2">Editar Padrinhos</h3>
+            <textarea id="godparentsInput" rows="5" class="w-full p-3 border rounded-lg text-sm mb-4"></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeGodparentsModal()" class="px-4 py-2 text-sm text-gray-600">Cancelar</button>
+                <button onclick="saveGodparents()" class="px-5 py-2 text-sm bg-roseGold text-white rounded-lg">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Upload -->
+    <div id="uploadModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-roseGold/30">
+            <h3 id="uploadModalTitle" class="font-serif text-xl font-bold text-roseGold mb-2">Enviar Foto</h3>
+            <form id="uploadForm" onsubmit="handlePhotoSubmit(event)">
+                <input type="hidden" id="editPhotoId">
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Imagem</label>
+                    <input type="file" id="photoInput" accept="image/*" class="w-full text-xs text-gray-500 file:py-2 file:px-3 file:rounded-full file:border-0 file:bg-softRose file:text-roseGold">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Categoria</label>
+                    <select id="categoryInput" class="w-full px-3 py-2 border rounded-lg text-sm">
+                        <option value="cerimonia">Cerimônia</option>
+                        <option value="festa">Festa</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Título / Legenda</label>
+                    <input type="text" id="titleInput" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ex: Entrada dos Noivos">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Enviado por</label>
+                    <input type="text" id="authorInput" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ex: Maria">
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Página do Livro</label>
+                    <input type="number" id="pageNumberInput" min="1" value="1" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeUploadModal()" class="px-4 py-2 text-sm text-gray-600">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 text-sm bg-roseGold text-white rounded-lg">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Principal -->
+    <script>
+        let supabaseClient = null;
+        let pageFlip = null;
+        let photosData = [];
+        let allPhotosFlat = [];
+        let currentZoomIndex = 0;
+        let slideshowInterval = null;
+        
+        let albumConfig = {
+            title: "Cerimônia & Festa",
+            subtitle: "Álbum de Memórias",
+            desc: '"O amor tudo sofre, tudo crê, tudo espera, tudo suporta."',
+            border_color: "#D4AF37",
+            page_bg_color: "#fffdfa",
+            text_color: "#374151",
+            cover_image: "",
+            music_url: "",
+            godparents: "<strong>Casal 1:</strong> Carlos Silva & Ana Souza<br><strong>Casal 2:</strong> Marcos Oliveira & Juliana Mendes",
+            page_slots: {}
+        };
+
+        const mockPhotos = [
+            { id: '1', title: 'Nossa Troca de Alianças', category: 'cerimonia', author: 'Noivos', page_number: 1, image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80' },
+            { id: '2', title: 'O Primeiro Beijo', category: 'cerimonia', author: 'Padrinhos', page_number: 1, image_url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=800&q=80' },
+            { id: '3', title: 'Abertura da Pista', category: 'festa', author: 'DJ & Amigos', page_number: 2, image_url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=800&q=80' },
+            { id: '4', title: 'Brinde Especial', category: 'festa', author: 'Família', page_number: 2, image_url: 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=800&q=80' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initSupabaseFromStorage();
+            loadCloudData();
+        });
+
+        function initSupabaseFromStorage() {
+            const url = localStorage.getItem('supabase_url') || 'https://oxlcaabjttrbbfcgoutl.supabase.co';
+            const key = localStorage.getItem('supabase_key') || 'sb_publishable_8X7TfiIXI2UGYqttUHsjKA_jLLhua0z';
+            if (url && key) {
+                supabaseClient = supabase.createClient(url, key);
+            }
+        }
+
+        async function loadCloudData() {
+            if (supabaseClient) {
+                try {
+                    let { data: cfgData } = await supabaseClient.from('album_config').select('*').eq('id', 1).single();
+                    if (cfgData) {
+                        albumConfig = { ...albumConfig, ...cfgData };
+                        if (!albumConfig.page_slots) albumConfig.page_slots = {};
+                    }
+
+                    let { data: photos, error } = await supabaseClient.from('fotos_casamento').select('*').order('created_at', { ascending: true });
+                    if (!error && photos && photos.length > 0) {
+                        photosData = photos;
+                    } else {
+                        photosData = mockPhotos;
+                    }
+                } catch (err) {
+                    photosData = mockPhotos;
+                }
+            } else {
+                photosData = mockPhotos;
+            }
+            applyConfigToUI();
+            renderBook();
+        }
+
+        function applyConfigToUI() {
+            document.getElementById('headerTitle').innerText = albumConfig.title || "Nosso Casamento";
+            document.documentElement.style.setProperty('--bg-page-color', albumConfig.page_bg_color || '#fffdfa');
+            document.documentElement.style.setProperty('--text-page-color', albumConfig.text_color || '#374151');
+            
+            const audio = document.getElementById('bgAudio');
+            if (albumConfig.music_url && audio) {
+                if (audio.src !== albumConfig.music_url) {
+                    audio.src = albumConfig.music_url;
+                }
+            }
+        }
+
+        function toggleAudio() {
+            const audio = document.getElementById('bgAudio');
+            const icon = document.getElementById('audioIcon');
+            const label = document.getElementById('audioLabel');
+
+            if (!audio.src || audio.src === window.location.href) {
+                if (albumConfig.music_url) {
+                    audio.src = albumConfig.music_url;
+                } else {
+                    alert('Nenhuma música configurada. Clique em "Configurar" para adicionar uma.');
+                    return;
+                }
+            }
+
+            if (audio.paused) {
+                audio.play().then(() => {
+                    icon.className = "fa-solid fa-volume-high";
+                    label.innerText = "Tocando";
+                }).catch(e => {
+                    alert('O navegador impediu a reprodução automática. Clique novamente.');
+                });
+            } else {
+                audio.pause();
+                icon.className = "fa-solid fa-volume-xmark";
+                label.innerText = "Mudo";
+            }
+        }
+
+        function tryPlayAudio() {
+            const audio = document.getElementById('bgAudio');
+            const icon = document.getElementById('audioIcon');
+            const label = document.getElementById('audioLabel');
+
+            if (albumConfig.music_url && audio && audio.paused) {
+                if (!audio.src || audio.src === window.location.href) {
+                    audio.src = albumConfig.music_url;
+                }
+                audio.play().then(() => {
+                    icon.className = "fa-solid fa-volume-high";
+                    label.innerText = "Tocando";
+                }).catch(e => {});
+            }
+        }
+
+        function handleNextPage() { 
+            tryPlayAudio(); 
+            if (pageFlip) pageFlip.flipNext(); 
+        }
+
+        function handlePrevPage() { 
+            tryPlayAudio(); 
+            if (pageFlip) pageFlip.flipPrev(); 
+        }
+
+        function startSlideshow() {
+            tryPlayAudio();
+            document.getElementById('playSlideshowBtn').classList.add('hidden');
+            document.getElementById('stopSlideshowBtn').classList.remove('hidden');
+            document.getElementById('exitSlideshowBtn').classList.remove('hidden');
+            if (slideshowInterval) clearInterval(slideshowInterval);
+            slideshowInterval = setInterval(() => {
+                if (pageFlip) {
+                    const current = pageFlip.getCurrentPageIndex();
+                    const total = pageFlip.getPageCount();
+                    if (current + 1 < total) pageFlip.flipNext();
+                    else pageFlip.flip(0);
+                }
+            }, 3000);
+        }
+
+        function stopSlideshow() {
+            if (slideshowInterval) clearInterval(slideshowInterval);
+            document.getElementById('stopSlideshowBtn').classList.add('hidden');
+            document.getElementById('playSlideshowBtn').classList.remove('hidden');
+        }
+
+        function exitSlideshow() {
+            stopSlideshow();
+            document.getElementById('exitSlideshowBtn').classList.add('hidden');
+            if (pageFlip) pageFlip.flip(0);
+        }
+
+        // Validação de Senha para Configurações
+        function requestPasswordForConfig() {
+            const pwd = prompt("Digite a senha para acessar as configurações:");
+            if (pwd === "123") {
+                openConfigModal();
+            } else if (pwd !== null) {
+                alert("Senha incorreta!");
+            }
+        }
+
+        function openConfigModal() {
+            document.getElementById('supabaseUrlInput').value = localStorage.getItem('supabase_url') || 'https://oxlcaabjttrbbfcgoutl.supabase.co';
+            document.getElementById('supabaseKeyInput').value = localStorage.getItem('supabase_key') || 'sb_publishable_8X7TfiIXI2UGYqttUHsjKA_jLLhua0z';
+            document.getElementById('cfgTitle').value = albumConfig.title || '';
+            document.getElementById('cfgSubtitle').value = albumConfig.subtitle || '';
+            document.getElementById('cfgDesc').value = albumConfig.desc || '';
+            document.getElementById('cfgBorderColor').value = albumConfig.border_color || '#D4AF37';
+            document.getElementById('cfgBgColor').value = albumConfig.page_bg_color || '#fffdfa';
+            document.getElementById('cfgTextColor').value = albumConfig.text_color || '#374151';
+            document.getElementById('cfgMusic').value = albumConfig.music_url || '';
+            document.getElementById('configModal').classList.remove('hidden');
+        }
+        function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); }
+
+        async function saveConfig(e) {
+            e.preventDefault();
+            const url = document.getElementById('supabaseUrlInput').value.trim();
+            const key = document.getElementById('supabaseKeyInput').value.trim();
+            if (url && key) {
+                localStorage.setItem('supabase_url', url);
+                localStorage.setItem('supabase_key', key);
+                supabaseClient = supabase.createClient(url, key);
+            }
+
+            albumConfig.title = document.getElementById('cfgTitle').value;
+            albumConfig.subtitle = document.getElementById('cfgSubtitle').value;
+            albumConfig.desc = document.getElementById('cfgDesc').value;
+            albumConfig.border_color = document.getElementById('cfgBorderColor').value;
+            albumConfig.page_bg_color = document.getElementById('cfgBgColor').value;
+            albumConfig.text_color = document.getElementById('cfgTextColor').value;
+            
+            let manualMusicUrl = document.getElementById('cfgMusic').value.trim();
+            if (manualMusicUrl) {
+                albumConfig.music_url = manualMusicUrl;
+            }
+
+            const musicFile = document.getElementById('musicFileInput').files[0];
+            if (musicFile && supabaseClient) {
+                const ext = musicFile.name.split('.').pop();
+                const path = `musica_${Date.now()}.${ext}`;
+                const { error: uploadErr } = await supabaseClient.storage.from('casamento').upload(path, musicFile);
+                if (!uploadErr) {
+                    const { data } = supabaseClient.storage.from('casamento').getPublicUrl(path);
+                    albumConfig.music_url = data.publicUrl;
+                    document.getElementById('cfgMusic').value = albumConfig.music_url;
+                } else {
+                    alert('Erro ao enviar música: ' + uploadErr.message);
+                }
+            }
+
+            const coverFile = document.getElementById('coverImageInput').files[0];
+            if (coverFile && supabaseClient) {
+                const ext = coverFile.name.split('.').pop();
+                const path = `capa_${Date.now()}.${ext}`;
+                await supabaseClient.storage.from('casamento').upload(path, coverFile);
+                const { data } = supabaseClient.storage.from('casamento').getPublicUrl(path);
+                albumConfig.cover_image = data.publicUrl;
+            }
+
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('album_config').upsert({ id: 1, ...albumConfig, updated_at: new Date() });
+                if (error) {
+                    alert('Erro ao salvar no Supabase: ' + error.message);
+                    return;
+                }
+            }
+
+            closeConfigModal();
+            loadCloudData();
+        }
+
+        function openPageConfig(pageNum) {
+            document.getElementById('targetPageNumber').value = pageNum;
+            let currentSlots = (albumConfig.page_slots && albumConfig.page_slots[pageNum]) ? albumConfig.page_slots[pageNum] : 2;
+            document.getElementById('pageSlotsSelect').value = currentSlots;
+            document.getElementById('pageConfigModal').classList.remove('hidden');
+        }
+        function closePageConfigModal() { document.getElementById('pageConfigModal').classList.add('hidden'); }
+
+        async function savePageSlots() {
+            const pageNum = document.getElementById('targetPageNumber').value;
+            const slots = parseInt(document.getElementById('pageSlotsSelect').value);
+            
+            if (!albumConfig.page_slots || typeof albumConfig.page_slots !== 'object') {
+                albumConfig.page_slots = {};
+            }
+            albumConfig.page_slots[pageNum] = slots;
+
+            if (supabaseClient) {
+                await supabaseClient.from('album_config').upsert({ 
+                    id: 1, 
+                    page_slots: albumConfig.page_slots, 
+                    updated_at: new Date() 
+                });
+            }
+            closePageConfigModal();
+            loadCloudData();
+        }
+
+        function openEditGodparentsModal() {
+            let gp = albumConfig.godparents || '';
+            document.getElementById('godparentsInput').value = gp.replace(/<br>/g, '\n').replace(/<\/?[^>]+(>|$)/g, "");
+            document.getElementById('godparentsModal').classList.remove('hidden');
+        }
+        function closeGodparentsModal() { document.getElementById('godparentsModal').classList.add('hidden'); }
+        async function saveGodparents() {
+            const val = document.getElementById('godparentsInput').value.replace(/\n/g, '<br>');
+            albumConfig.godparents = val;
+            if (supabaseClient) {
+                await supabaseClient.from('album_config').upsert({ id: 1, godparents: val, updated_at: new Date() });
+            }
+            closeGodparentsModal();
+            loadCloudData();
+        }
+
+        // Validação de Senha para Edição de Fotos
+        function requestPasswordForEdit(id, title, author, category, pageNum) {
+            const pwd = prompt("Digite a senha para editar esta foto:");
+            if (pwd === "123") {
+                openUploadModal(id, title, author, category, pageNum);
+            } else if (pwd !== null) {
+                alert("Senha incorreta! Edição cancelada.");
+            }
+        }
+
+        function openUploadModal(editId = null, title = '', author = '', category = 'cerimonia', pageNum = 1) {
+            if (!supabaseClient) { alert('Configure o Supabase primeiro para salvar fotos.'); openConfigModal(); return; }
+            document.getElementById('editPhotoId').value = editId || '';
+            document.getElementById('uploadModalTitle').innerText = editId ? 'Editar Foto' : 'Adicionar Foto';
+            document.getElementById('titleInput').value = title;
+            document.getElementById('authorInput').value = author;
+            document.getElementById('categoryInput').value = category;
+            document.getElementById('pageNumberInput').value = pageNum;
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+        function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
+
+        async function handlePhotoSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editPhotoId').value;
+            const file = document.getElementById('photoInput').files[0];
+            const title = document.getElementById('titleInput').value;
+            const author = document.getElementById('authorInput').value;
+            const category = document.getElementById('categoryInput').value;
+            const page_number = parseInt(document.getElementById('pageNumberInput').value) || 1;
+
+            let publicUrl = '';
+            if (file && supabaseClient) {
+                const ext = file.name.split('.').pop();
+                const path = `fotos/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                await supabaseClient.storage.from('casamento').upload(path, file);
+                const { data } = supabaseClient.storage.from('casamento').getPublicUrl(path);
+                publicUrl = data.publicUrl;
+            }
+
+            if (supabaseClient) {
+                if (editId) {
+                    let updateData = { title, author, category, page_number };
+                    if (publicUrl) updateData.image_url = publicUrl;
+                    await supabaseClient.from('fotos_casamento').update(updateData).eq('id', editId);
+                } else {
+                    if (!publicUrl) { alert('Selecione uma imagem.'); return; }
+                    await supabaseClient.from('fotos_casamento').insert([{ title, author, category, page_number, image_url: publicUrl }]);
+                }
+            }
+
+            closeUploadModal();
+            document.getElementById('uploadForm').reset();
+            loadCloudData();
+        }
+
+        // Validação de Senha para Exclusão de Fotos
+        async function deletePhoto(id) {
+            const pwd = prompt("Digite a senha para excluir esta foto:");
+            if (pwd !== "123") {
+                if (pwd !== null) alert("Senha incorreta! Exclusão cancelada.");
+                return;
+            }
+
+            if (supabaseClient) {
+                await supabaseClient.from('fotos_casamento').delete().eq('id', id);
+            }
+            loadCloudData();
+        }
+
+        function renderBook() {
+            const bookContainer = document.getElementById('myBook');
+            if (pageFlip) {
+                try { pageFlip.destroy(); } catch(err) {}
+            }
+            bookContainer.innerHTML = '';
+            allPhotosFlat = [];
+
+            let maxPage = 2;
+            photosData.forEach(p => { if (p.page_number > maxPage) maxPage = p.page_number; });
+
+            let coverContent = `
+                <div class="page hard-cover flex flex-col justify-between items-center p-6 sm:p-8 text-center" data-density="hard" style="border: 8px solid ${albumConfig.border_color || '#D4AF37'};">
+                    <div class="w-full border-4 border-dashed border-goldAccent/40 p-4 sm:p-6 h-full flex flex-col justify-between items-center rounded-sm">
+                        <div class="mt-1">
+                            <span class="text-roseGold font-serif uppercase tracking-widest text-[10px] sm:text-xs font-semibold">${albumConfig.subtitle || 'Álbum de Memórias'}</span>
+                            <h2 class="font-script text-3xl sm:text-4xl md:text-5xl text-roseGold mt-1">${albumConfig.title || 'Cerimônia & Festa'}</h2>
+                        </div>
+            `;
+            if (albumConfig.cover_image) {
+                coverContent += `<div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-goldAccent shadow-lg my-auto bg-gray-100 flex items-center justify-center p-1"><img src="${albumConfig.cover_image}" class="w-full h-full object-contain"></div>`;
+            } else {
+                coverContent += `<div class="my-auto"><i class="fa-solid fa-heart text-goldAccent text-4xl sm:text-5xl animate-pulse"></i></div>`;
+            }
+            coverContent += `
+                        <div>
+                            <p class="font-serif italic text-[11px] sm:text-xs">${albumConfig.desc || '"O amor tudo sofre..."'}</p>
+                            <p class="text-[9px] sm:text-[10px] text-roseGold/80 mt-1 uppercase tracking-wider">Arraste para folhear</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            let godparentsPage = `
+                <div class="page p-4 sm:p-6 flex flex-col justify-between items-center text-center">
+                    <div class="w-full border-b border-roseGold/20 pb-2 mb-2 flex justify-between items-center">
+                        <h3 class="font-serif text-base sm:text-lg font-bold text-roseGold">Padrinhos & Madrinhas</h3>
+                        <button onclick="openEditGodparentsModal()" class="text-xs bg-softRose text-roseGold px-2 py-1 rounded"><i class="fa-solid fa-pen"></i></button>
+                    </div>
+                    <div class="w-full flex-1 overflow-y-auto text-left px-1">
+                        <div class="space-y-2 font-serif text-xs sm:text-sm">${albumConfig.godparents || 'Nenhum padrinhos cadastrado.'}</div>
+                    </div>
+                    <div class="w-full pt-1 text-[10px] opacity-60">Página de Homenagem</div>
+                </div>
+            `;
+
+            let pagesHtml = coverContent + godparentsPage;
+
+            for (let pNum = 1; pNum <= maxPage; pNum++) {
+                const pagePhotos = photosData.filter(p => p.page_number === pNum);
+                const slots = (albumConfig.page_slots && albumConfig.page_slots[pNum]) ? parseInt(albumConfig.page_slots[pNum]) : 2;
+                
+                let gridClass = slots === 1 ? 'grid-cols-1' : (slots === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2');
+                let imgHeight = slots === 1 ? 'h-44 sm:h-52 md:h-60' : (slots === 2 ? 'h-28 sm:h-32 md:h-38' : 'h-20 sm:h-24 md:h-28');
+
+                let contentHtml = `<div class="w-full grid ${gridClass} gap-2 my-auto">`;
+                
+                for (let s = 0; s < slots; s++) {
+                    const photo = pagePhotos[s];
+                    if (photo) {
+                        allPhotosFlat.push(photo);
+                        const globalIndex = allPhotosFlat.length - 1;
+                        contentHtml += `
+                            <div class="bg-white/60 p-1.5 sm:p-2 rounded border border-roseGold/20 shadow-sm flex flex-col justify-between">
+                                <div class="w-full ${imgHeight} rounded overflow-hidden bg-gray-100 flex items-center justify-center relative group">
+                                    <img src="${photo.image_url}" alt="${photo.title}" class="w-full h-full object-contain cursor-pointer hover:scale-105 transition duration-300" onclick="openZoom(${globalIndex})">
+                                    <button onclick="openZoom(${globalIndex})" class="absolute bottom-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition text-xs"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                                </div>
+                                <div class="mt-1">
+                                    <h4 class="font-serif text-[11px] sm:text-xs font-semibold truncate">${photo.title}</h4>
+                                    <div class="flex justify-between items-center text-[9px] sm:text-[10px] opacity-70">
+                                        <span>Por: ${photo.author}</span>
+                                        <div class="flex gap-1.5">
+                                            <button onclick="requestPasswordForEdit('${photo.id}', '${photo.title.replace(/'/g, "\\'")}', '${photo.author.replace(/'/g, "\\'")}', '${photo.category}', ${photo.page_number})" class="text-roseGold" title="Editar (Requer Senha)"><i class="fa-solid fa-pen"></i></button>
+                                            <button onclick="deletePhoto('${photo.id}')" class="text-red-500" title="Excluir (Requer Senha)"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        contentHtml += `
+                            <div class="border-2 border-dashed border-roseGold/30 rounded p-3 flex flex-col items-center justify-center text-center bg-softRose/20 h-24 sm:h-28">
+                                <i class="fa-solid fa-camera text-roseGold/40 text-lg sm:text-xl mb-1"></i>
+                                <span class="text-[9px] sm:text-[10px] opacity-70 font-serif">Slot Vazio</span>
+                                <button onclick="openUploadModal(null, '', '', 'cerimonia', ${pNum})" class="mt-1 text-[9px] bg-roseGold text-white px-2 py-0.5 rounded shadow">Adicionar</button>
+                            </div>
+                        `;
+                    }
+                }
+                contentHtml += `</div>`;
+
+                pagesHtml += `
+                    <div class="page p-3 sm:p-5 flex flex-col justify-between items-center text-center">
+                        <div class="w-full flex justify-between items-center text-[10px] sm:text-[11px] opacity-60 font-serif border-b border-roseGold/10 pb-1">
+                            <span class="uppercase tracking-wider text-roseGold">Pág. ${pNum} (${slots} Slots)</span>
+                            <button onclick="openPageConfig(${pNum})" class="text-roseGold hover:underline"><i class="fa-solid fa-gear"></i> Slots</button>
+                        </div>
+                        ${contentHtml}
+                        <div class="w-full flex justify-between items-center text-[9px] sm:text-[10px] opacity-60 font-serif pt-1">
+                            <span>Cerimônia & Festa</span>
+                            <button onclick="openUploadModal(null, '', '', 'cerimonia', ${pNum})" class="bg-softRose text-roseGold px-2 py-0.5 rounded font-bold">+ Foto</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            pagesHtml += `
+                <div class="page hard-cover flex flex-col justify-center items-center p-6 sm:p-8 text-center" data-density="hard" style="border: 8px solid ${albumConfig.border_color || '#D4AF37'};">
+                    <div class="w-full border-4 border-dashed border-goldAccent/40 p-6 sm:p-8 h-full flex flex-col justify-center items-center rounded-sm">
+                        <i class="fa-solid fa-infinity text-roseGold text-3xl sm:text-4xl mb-3"></i>
+                        <h3 class="font-script text-3xl sm:text-4xl text-roseGold">Obrigado por celebrar conosco!</h3>
+                        <p class="font-serif text-xs sm:text-sm mt-2 opacity-80">Com carinho, Noivos.</p>
+                    </div>
+                </div>
+            `;
+
+            bookContainer.innerHTML = pagesHtml;
+            
+            let bookWidth = window.innerWidth < 640 ? window.innerWidth - 32 : 400;
+            let bookHeight = window.innerWidth < 640 ? Math.min(window.innerHeight * 0.65, 500) : 550;
+
+            pageFlip = new St.PageFlip(document.getElementById('myBook'), {
+                width: bookWidth < 300 ? 300 : bookWidth,
+                height: bookHeight,
+                size: 'fixed',
+                minWidth: 260,
+                maxWidth: 500,
+                minHeight: 350,
+                maxHeight: 700,
+                maxShadowOpacity: 0.4,
+                showCover: true,
+                mobileScrollSupport: true
+            });
+            pageFlip.loadFromHTML(document.querySelectorAll('.page'));
+
+            pageFlip.on('flip', (e) => {
+                const current = e.data + 1;
+                const total = pageFlip.getPageCount();
+                document.getElementById('pageIndicator').innerText = current === 1 ? 'Capa' : `Pág ${current} de ${total}`;
+            });
+        }
+
+        function openZoom(index) {
+            currentZoomIndex = index;
+            updateZoomModalContent();
+            document.getElementById('zoomModal').classList.remove('hidden');
+        }
+        function closeZoomModal() { document.getElementById('zoomModal').classList.add('hidden'); }
+        function updateZoomModalContent() {
+            if (allPhotosFlat.length === 0) return;
+            const photo = allPhotosFlat[currentZoomIndex];
+            document.getElementById('zoomedImage').src = photo.image_url;
+            document.getElementById('zoomedCaption').innerText = `${photo.title} (Por: ${photo.author})`;
+        }
+        function zoomPrev(e) {
+            if (e) e.stopPropagation();
+            if (allPhotosFlat.length === 0) return;
+            currentZoomIndex = (currentZoomIndex - 1 + allPhotosFlat.length) % allPhotosFlat.length;
+            updateZoomModalContent();
+        }
+        function zoomNext(e) {
+            if (e) e.stopPropagation();
+            if (allPhotosFlat.length === 0) return;
+            currentZoomIndex = (currentZoomIndex + 1) % allPhotosFlat.length;
+            updateZoomModalContent();
+        }
+    </script>
+</body>
+</html>
