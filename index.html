@@ -180,6 +180,13 @@
                     <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
+                <!-- Adicionar/Definir Total de Páginas -->
+                <div class="mb-3">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-roseGold mb-1"><i class="fa-solid fa-book-open"></i> Total de Páginas do Álbum</label>
+                    <input type="number" id="cfgTotalPages" min="1" max="50" class="w-full px-3 py-2 border rounded-lg text-sm font-semibold text-roseGold" value="2">
+                    <p class="text-[10px] text-gray-500 mt-0.5">Aumente este número para adicionar novas páginas vazias no livro.</p>
+                </div>
+
                 <div class="grid grid-cols-3 gap-2 mb-3">
                     <div>
                         <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Borda da Capa</label>
@@ -202,7 +209,7 @@
 
                 <div class="mb-4">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Música de Fundo (Upload MP3 ou Link)</label>
-                    <input type="file" id="musicFileInput" accept="audio/*" class="w-full text-xs text-gray-500 mb-1.5 file:py-1.5 file:px-2 file:rounded file:border-0 file:bg-softRose file:text-roseGold">
+                    <input type="file" id="musicFileInput" accept="audio/*" class="w-full text-xs text-gray-500 file:py-1.5 file:px-2 file:rounded file:border-0 file:bg-softRose file:text-roseGold mb-1">
                     <input type="url" id="cfgMusic" placeholder="Ou cole a URL direta do áudio (MP3)" class="w-full px-3 py-1.5 border rounded-lg text-xs">
                 </div>
 
@@ -220,8 +227,8 @@
             <h3 class="font-serif text-lg font-bold text-roseGold mb-2">Configurar Slots da Página</h3>
             <input type="hidden" id="targetPageNumber">
             <select id="pageSlotsSelect" class="w-full px-3 py-2 border rounded-lg text-sm mb-5">
-                <option value="1">1 Foto (Destaque)</option>
-                <option value="2">2 Fotos (Dupla)</option>
+                <option value="1">1 Foto (Destaque Gigante)</option>
+                <option value="2">2 Fotos (Grande - Uma acima da outra)</option>
                 <option value="4">4 Fotos (Mosaico)</option>
                 <option value="6">6 Fotos (Galeria)</option>
             </select>
@@ -299,6 +306,7 @@
             text_color: "#374151",
             cover_image: "",
             music_url: "",
+            total_pages: 2,
             godparents: "<strong>Casal 1:</strong> Carlos Silva & Ana Souza<br><strong>Casal 2:</strong> Marcos Oliveira & Juliana Mendes",
             page_slots: {}
         };
@@ -443,7 +451,7 @@
             if (pageFlip) pageFlip.flip(0);
         }
 
-        // Validação de Senha para Configurações
+        // Validação de Senha para Configurações (Senha = 123)
         function requestPasswordForConfig() {
             const pwd = prompt("Digite a senha para acessar as configurações:");
             if (pwd === "123") {
@@ -459,6 +467,7 @@
             document.getElementById('cfgTitle').value = albumConfig.title || '';
             document.getElementById('cfgSubtitle').value = albumConfig.subtitle || '';
             document.getElementById('cfgDesc').value = albumConfig.desc || '';
+            document.getElementById('cfgTotalPages').value = albumConfig.total_pages || 2;
             document.getElementById('cfgBorderColor').value = albumConfig.border_color || '#D4AF37';
             document.getElementById('cfgBgColor').value = albumConfig.page_bg_color || '#fffdfa';
             document.getElementById('cfgTextColor').value = albumConfig.text_color || '#374151';
@@ -480,6 +489,7 @@
             albumConfig.title = document.getElementById('cfgTitle').value;
             albumConfig.subtitle = document.getElementById('cfgSubtitle').value;
             albumConfig.desc = document.getElementById('cfgDesc').value;
+            albumConfig.total_pages = parseInt(document.getElementById('cfgTotalPages').value) || 2;
             albumConfig.border_color = document.getElementById('cfgBorderColor').value;
             albumConfig.page_bg_color = document.getElementById('cfgBgColor').value;
             albumConfig.text_color = document.getElementById('cfgTextColor').value;
@@ -568,7 +578,7 @@
             loadCloudData();
         }
 
-        // Validação de Senha para Edição de Fotos
+        // Validação de Senha para Edição de Fotos (Senha = 123)
         function requestPasswordForEdit(id, title, author, category, pageNum) {
             const pwd = prompt("Digite a senha para editar esta foto:");
             if (pwd === "123") {
@@ -624,7 +634,7 @@
             loadCloudData();
         }
 
-        // Validação de Senha para Exclusão de Fotos
+        // Validação de Senha para Exclusão de Fotos (Senha = 123)
         async function deletePhoto(id) {
             const pwd = prompt("Digite a senha para excluir esta foto:");
             if (pwd !== "123") {
@@ -646,7 +656,7 @@
             bookContainer.innerHTML = '';
             allPhotosFlat = [];
 
-            let maxPage = 2;
+            let maxPage = albumConfig.total_pages || 2;
             photosData.forEach(p => { if (p.page_number > maxPage) maxPage = p.page_number; });
 
             let coverContent = `
@@ -690,10 +700,21 @@
                 const pagePhotos = photosData.filter(p => p.page_number === pNum);
                 const slots = (albumConfig.page_slots && albumConfig.page_slots[pNum]) ? parseInt(albumConfig.page_slots[pNum]) : 2;
                 
-                let gridClass = slots === 1 ? 'grid-cols-1' : (slots === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2');
-                let imgHeight = slots === 1 ? 'h-44 sm:h-52 md:h-60' : (slots === 2 ? 'h-28 sm:h-32 md:h-38' : 'h-20 sm:h-24 md:h-28');
+                let gridClass = '';
+                let imgHeight = '';
 
-                let contentHtml = `<div class="w-full grid ${gridClass} gap-2 my-auto">`;
+                if (slots === 1) {
+                    gridClass = 'grid-cols-1 h-full';
+                    imgHeight = 'h-72 sm:h-80 md:h-96';
+                } else if (slots === 2) {
+                    gridClass = 'grid-cols-1 gap-3';
+                    imgHeight = 'h-36 sm:h-44 md:h-52';
+                } else {
+                    gridClass = 'grid-cols-2 gap-2';
+                    imgHeight = 'h-20 sm:h-24 md:h-28';
+                }
+
+                let contentHtml = `<div class="w-full grid ${gridClass} my-auto items-center">`;
                 
                 for (let s = 0; s < slots; s++) {
                     const photo = pagePhotos[s];
@@ -701,7 +722,7 @@
                         allPhotosFlat.push(photo);
                         const globalIndex = allPhotosFlat.length - 1;
                         contentHtml += `
-                            <div class="bg-white/60 p-1.5 sm:p-2 rounded border border-roseGold/20 shadow-sm flex flex-col justify-between">
+                            <div class="bg-white/60 p-2 rounded border border-roseGold/20 shadow-sm flex flex-col justify-between">
                                 <div class="w-full ${imgHeight} rounded overflow-hidden bg-gray-100 flex items-center justify-center relative group">
                                     <img src="${photo.image_url}" alt="${photo.title}" class="w-full h-full object-contain cursor-pointer hover:scale-105 transition duration-300" onclick="openZoom(${globalIndex})">
                                     <button onclick="openZoom(${globalIndex})" class="absolute bottom-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition text-xs"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
@@ -720,7 +741,7 @@
                         `;
                     } else {
                         contentHtml += `
-                            <div class="border-2 border-dashed border-roseGold/30 rounded p-3 flex flex-col items-center justify-center text-center bg-softRose/20 h-24 sm:h-28">
+                            <div class="border-2 border-dashed border-roseGold/30 rounded p-3 flex flex-col items-center justify-center text-center bg-softRose/20 ${slots === 1 ? 'h-72 sm:h-80 md:h-96' : (slots === 2 ? 'h-36 sm:h-44 md:h-52' : 'h-24')}">
                                 <i class="fa-solid fa-camera text-roseGold/40 text-lg sm:text-xl mb-1"></i>
                                 <span class="text-[9px] sm:text-[10px] opacity-70 font-serif">Slot Vazio</span>
                                 <button onclick="openUploadModal(null, '', '', 'cerimonia', ${pNum})" class="mt-1 text-[9px] bg-roseGold text-white px-2 py-0.5 rounded shadow">Adicionar</button>
