@@ -173,7 +173,6 @@
             
             <p id="zoomedCaption" class="text-white font-serif text-sm md:text-base mt-2 text-center px-4"></p>
 
-            <!-- Botões de Play/Pause do Zoom -->
             <div class="flex items-center gap-3 mt-3">
                 <button id="zoomPlayBtn" onclick="toggleZoomSlideshow()" class="bg-roseGold hover:bg-roseGold/90 text-white text-xs px-4 py-1.5 rounded-full shadow-lg transition flex items-center gap-1.5 font-medium border border-white/30">
                     <i id="zoomPlayIcon" class="fa-solid fa-play"></i> <span id="zoomPlayLabel">Apresentar</span>
@@ -206,6 +205,15 @@
                 <div class="mb-3">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Descrição / Citação</label>
                     <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+
+                <!-- SELETOR DE ESTILO / LAYOUT DA CAPA -->
+                <div class="mb-4 p-3 bg-softRose/30 rounded-xl border border-roseGold/30">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-1.5"><i class="fa-solid fa-image"></i> Estilo de Layout da Capa</label>
+                    <select id="cfgCoverLayout" class="w-full px-3 py-2 border rounded-lg text-sm font-semibold bg-white text-roseGold">
+                        <option value="classic">Clássico com Borda Tracejada e Foto Central</option>
+                        <option value="full">Moderno (Foto Preenchendo Toda a Capa com Títulos Sobrepostos)</option>
+                    </select>
                 </div>
 
                 <!-- MINIATURAS VISUAIS DE TEMAS PRÉ-CONFIGURADOS -->
@@ -366,6 +374,7 @@
             title: "Cerimônia & Festa",
             subtitle: "Álbum de Memórias",
             desc: '"O amor tudo sofre, tudo crê, tudo espera, tudo suporta."',
+            cover_layout: "classic",
             body_bg_color: "#fffaf5",
             border_color: "#D4AF37",
             page_bg_color: "#fffdfa",
@@ -443,7 +452,9 @@
             document.getElementById('cfgTextColor').value = textColor;
 
             document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('ring-4', 'ring-roseGold'));
-            event.currentTarget.classList.add('ring-4', 'ring-roseGold');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('ring-4', 'ring-roseGold');
+            }
         }
 
         function toggleAudio() {
@@ -559,6 +570,7 @@
             document.getElementById('cfgTitle').value = albumConfig.title || '';
             document.getElementById('cfgSubtitle').value = albumConfig.subtitle || '';
             document.getElementById('cfgDesc').value = albumConfig.desc || '';
+            document.getElementById('cfgCoverLayout').value = albumConfig.cover_layout || 'classic';
             document.getElementById('cfgTotalPages').value = albumConfig.total_pages || 2;
             document.getElementById('cfgBodyBgColor').value = albumConfig.body_bg_color || '#fffaf5';
             document.getElementById('cfgBorderColor').value = albumConfig.border_color || '#D4AF37';
@@ -587,6 +599,7 @@
             albumConfig.title = document.getElementById('cfgTitle').value;
             albumConfig.subtitle = document.getElementById('cfgSubtitle').value;
             albumConfig.desc = document.getElementById('cfgDesc').value;
+            albumConfig.cover_layout = document.getElementById('cfgCoverLayout').value;
             albumConfig.total_pages = parseInt(document.getElementById('cfgTotalPages').value) || 2;
             
             albumConfig.body_bg_color = document.getElementById('cfgBodyBgColor').value;
@@ -746,6 +759,30 @@
             loadCloudData();
         }
 
+        function downloadPhoto(imageUrl, photoTitle) {
+            const pwd = prompt("Digite a senha para baixar esta foto:");
+            if (pwd !== "123") {
+                if (pwd !== null) alert("Senha incorreta! Download cancelado.");
+                return;
+            }
+
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = blobUrl;
+                    a.download = (photoTitle || 'foto_casamento') + '.jpg';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(blobUrl);
+                })
+                .catch(err => {
+                    window.open(imageUrl, '_blank');
+                });
+        }
+
         function renderBook() {
             const bookContainer = document.getElementById('myBook');
             if (pageFlip) {
@@ -757,27 +794,47 @@
             let maxPage = albumConfig.total_pages || 2;
             photosData.forEach(p => { if (p.page_number > maxPage) maxPage = p.page_number; });
 
-            let coverContent = `
-                <div class="page hard-cover flex flex-col justify-between items-center p-6 sm:p-8 text-center" data-density="hard" style="border: 8px solid ${albumConfig.border_color || '#D4AF37'};">
-                    <div class="w-full border-4 border-dashed border-goldAccent/40 p-4 sm:p-6 h-full flex flex-col justify-between items-center rounded-sm">
-                        <div class="mt-1">
-                            <span class="text-roseGold font-serif uppercase tracking-widest text-[10px] sm:text-xs font-semibold">${albumConfig.subtitle || 'Álbum de Memórias'}</span>
-                            <h2 class="font-script text-3xl sm:text-4xl md:text-5xl text-roseGold mt-1">${albumConfig.title || 'Cerimônia & Festa'}</h2>
+            let coverContent = '';
+            if (albumConfig.cover_layout === 'full' && albumConfig.cover_image) {
+                coverContent = `
+                    <div class="page hard-cover relative flex flex-col justify-between items-center p-6 sm:p-8 text-center overflow-hidden" data-density="hard" style="border: 4px solid ${albumConfig.border_color || '#D4AF37'};">
+                        <div class="absolute inset-0 z-0">
+                            <img src="${albumConfig.cover_image}" class="w-full h-full object-cover filter brightness-90">
+                            <div class="absolute inset-0 bg-black/30"></div>
                         </div>
-            `;
-            if (albumConfig.cover_image) {
-                coverContent += `<div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-goldAccent shadow-lg my-auto bg-gray-100 flex items-center justify-center p-0"><img src="${albumConfig.cover_image}" class="w-full h-full object-cover"></div>`;
-            } else {
-                coverContent += `<div class="my-auto"><i class="fa-solid fa-heart text-goldAccent text-4xl sm:text-5xl animate-pulse"></i></div>`;
-            }
-            coverContent += `
-                        <div>
-                            <p class="font-serif italic text-[11px] sm:text-xs">${albumConfig.desc || '"O amor tudo sofre..."'}</p>
-                            <p class="text-[9px] sm:text-[10px] text-roseGold/80 mt-1 uppercase tracking-wider">Arraste para folhear</p>
+                        <div class="relative z-10 w-full pt-4">
+                            <span class="text-white/90 font-serif uppercase tracking-widest text-[10px] sm:text-xs font-semibold drop-shadow">${albumConfig.subtitle || 'Álbum de Memórias'}</span>
+                            <h2 class="font-script text-3xl sm:text-4xl md:text-5xl text-white mt-1 drop-shadow-md">${albumConfig.title || 'Cerimônia & Festa'}</h2>
+                        </div>
+                        <div class="relative z-10 pb-4">
+                            <p class="font-serif italic text-white/90 text-[11px] sm:text-xs drop-shadow">${albumConfig.desc || '"O amor tudo sofre..."'}</p>
+                            <p class="text-[9px] sm:text-[10px] text-white/80 mt-1 uppercase tracking-wider drop-shadow">Arraste para folhear</p>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                coverContent = `
+                    <div class="page hard-cover flex flex-col justify-between items-center p-6 sm:p-8 text-center" data-density="hard" style="border: 8px solid ${albumConfig.border_color || '#D4AF37'};">
+                        <div class="w-full border-4 border-dashed border-goldAccent/40 p-4 sm:p-6 h-full flex flex-col justify-between items-center rounded-sm">
+                            <div class="mt-1">
+                                <span class="text-roseGold font-serif uppercase tracking-widest text-[10px] sm:text-xs font-semibold">${albumConfig.subtitle || 'Álbum de Memórias'}</span>
+                                <h2 class="font-script text-3xl sm:text-4xl md:text-5xl text-roseGold mt-1">${albumConfig.title || 'Cerimônia & Festa'}</h2>
+                            </div>
+                `;
+                if (albumConfig.cover_image) {
+                    coverContent += `<div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-goldAccent shadow-lg my-auto bg-gray-100 flex items-center justify-center p-0"><img src="${albumConfig.cover_image}" class="w-full h-full object-cover"></div>`;
+                } else {
+                    coverContent += `<div class="my-auto"><i class="fa-solid fa-heart text-goldAccent text-4xl sm:text-5xl animate-pulse"></i></div>`;
+                }
+                coverContent += `
+                            <div>
+                                <p class="font-serif italic text-[11px] sm:text-xs">${albumConfig.desc || '"O amor tudo sofre..."'}</p>
+                                <p class="text-[9px] sm:text-[10px] text-roseGold/80 mt-1 uppercase tracking-wider">Arraste para folhear</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
             let godparentsPage = `
                 <div class="page p-4 sm:p-6 flex flex-col justify-between items-center text-center">
@@ -830,6 +887,7 @@
                                     <div class="flex justify-between items-center text-[9px] sm:text-[10px] opacity-70">
                                         <span>Por: ${photo.author}</span>
                                         <div class="flex gap-1.5">
+                                            <button onclick="downloadPhoto('${photo.image_url}', '${photo.title.replace(/'/g, "\\'")}')" class="text-blue-600 hover:text-blue-800" title="Baixar Foto (Requer Senha)"><i class="fa-solid fa-download"></i></button>
                                             <button onclick="requestPasswordForEdit('${photo.id}', '${photo.title.replace(/'/g, "\\'")}', '${photo.author.replace(/'/g, "\\'")}', '${photo.category}', ${photo.page_number})" class="text-roseGold" title="Editar (Requer Senha)"><i class="fa-solid fa-pen"></i></button>
                                             <button onclick="deletePhoto('${photo.id}')" class="text-red-500" title="Excluir (Requer Senha)"><i class="fa-solid fa-trash"></i></button>
                                         </div>
