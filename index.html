@@ -206,17 +206,31 @@
                     <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
-                <!-- SELETOR DE TEMAS PRÉ-CONFIGURADOS -->
-                <div class="mb-3">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-1"><i class="fa-solid fa-palette"></i> Tema Pré-Configurado</label>
-                    <select id="presetThemeSelect" onchange="applyPresetTheme()" class="w-full px-3 py-2 border rounded-lg text-sm bg-softRose/20 text-gray-800 font-medium">
-                        <option value="">-- Personalizado --</option>
-                        <option value="roseGold">Rosé Gold Clássico</option>
-                        <option value="gold">Dourado Imperial</option>
-                        <option value="silver">Prateado Elegante</option>
-                        <option value="wineGold">Vinho & Ouro</option>
-                        <option value="emerald">Pérola & Esmeralda</option>
-                    </select>
+                <!-- MINIATURAS VISUAIS DE TEMAS PRÉ-CONFIGURADOS -->
+                <div class="mb-4">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-2"><i class="fa-solid fa-palette"></i> Escolha um Estilo Visual (Miniaturas)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <div onclick="selectTheme('roseGold', '#D4AF37', '#FFFDF2', '#374151')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-roseGold rounded-xl p-2.5 text-center transition bg-[#FFFDF2] shadow-sm">
+                            <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #D4AF37; color: #374151;">Rosé Gold</div>
+                            <span class="text-[10px] font-semibold text-gray-700">Clássico Suave</span>
+                        </div>
+                        <div onclick="selectTheme('gold', '#B8860B', '#FFFFF0', '#2B2B2B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-amber-600 rounded-xl p-2.5 text-center transition bg-[#FFFFF0] shadow-sm">
+                            <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #B8860B; color: #2B2B2B;">Dourado</div>
+                            <span class="text-[10px] font-semibold text-gray-700">Imperial</span>
+                        </div>
+                        <div onclick="selectTheme('silver', '#C0C0C0', '#F8F9FA', '#1F2937')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-xl p-2.5 text-center transition bg-[#F8F9FA] shadow-sm">
+                            <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #C0C0C0; color: #1F2937;">Prateado</div>
+                            <span class="text-[10px] font-semibold text-gray-700">Elegante</span>
+                        </div>
+                        <div onclick="selectTheme('wineGold', '#D4AF37', '#FAF0F2', '#4A0E17')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-rose-800 rounded-xl p-2.5 text-center transition bg-[#FAF0F2] shadow-sm">
+                            <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #D4AF37; color: #4A0E17;">Vinho & Ouro</div>
+                            <span class="text-[10px] font-semibold text-gray-700">Luxuoso</span>
+                        </div>
+                        <div onclick="selectTheme('emerald', '#065F46', '#F0FDF4', '#064E3B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-emerald-600 rounded-xl p-2.5 text-center transition bg-[#F0FDF4] shadow-sm">
+                            <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #065F46; color: #064E3B;">Esmeralda</div>
+                            <span class="text-[10px] font-semibold text-gray-700">Pérola Verde</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- GERENCIAR PÁGINAS SEM LIMITE -->
@@ -414,34 +428,15 @@
             }
         }
 
-        // Aplicação de temas pré-configurados no modal de configurações
-        function applyPresetTheme() {
-            const preset = document.getElementById('presetThemeSelect').value;
-            const borderInput = document.getElementById('cfgBorderColor');
-            const bgInput = document.getElementById('cfgBgColor');
-            const textInput = document.getElementById('cfgTextColor');
+        // Seleção de temas por clique nas miniaturas visuais
+        function selectTheme(themeName, borderColor, bgColor, textColor) {
+            document.getElementById('cfgBorderColor').value = borderColor;
+            document.getElementById('cfgBgColor').value = bgColor;
+            document.getElementById('cfgTextColor').value = textColor;
 
-            if (preset === 'roseGold') {
-                borderInput.value = '#D4AF37';
-                bgInput.value = '#FFFDF2';
-                textInput.value = '#374151';
-            } else if (preset === 'gold') {
-                borderInput.value = '#B8860B';
-                bgInput.value = '#FFFFF0';
-                textInput.value = '#2B2B2B';
-            } else if (preset === 'silver') {
-                borderInput.value = '#C0C0C0';
-                bgInput.value = '#F8F9FA';
-                textInput.value = '#1F2937';
-            } else if (preset === 'wineGold') {
-                borderInput.value = '#D4AF37';
-                bgInput.value = '#FAF0F2';
-                textInput.value = '#4A0E17';
-            } else if (preset === 'emerald') {
-                borderInput.value = '#065F46';
-                bgInput.value = '#F0FDF4';
-                textInput.value = '#064E3B';
-            }
+            // Destaque visual na miniatura selecionada
+            document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('ring-4', 'ring-roseGold'));
+            event.currentTarget.classList.add('ring-4', 'ring-roseGold');
         }
 
         function toggleAudio() {
@@ -586,6 +581,8 @@
             albumConfig.subtitle = document.getElementById('cfgSubtitle').value;
             albumConfig.desc = document.getElementById('cfgDesc').value;
             albumConfig.total_pages = parseInt(document.getElementById('cfgTotalPages').value) || 2;
+            
+            // Garantir que as cores dos seletores sejam capturadas corretamente ao salvar
             albumConfig.border_color = document.getElementById('cfgBorderColor').value;
             albumConfig.page_bg_color = document.getElementById('cfgBgColor').value;
             albumConfig.text_color = document.getElementById('cfgTextColor').value;
