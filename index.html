@@ -143,22 +143,40 @@
             </button>
         </div>
 
-        <!-- Book Container -->
-        <div id="bookWrapper" class="relative w-full flex justify-center items-center my-2" onclick="tryPlayAudio()">
+        <!-- Book Container com Setas de Navegação Laterais -->
+        <div id="bookWrapper" class="relative w-full flex justify-center items-center my-2 group" onclick="tryPlayAudio()">
+            <!-- Seta Esquerda -->
+            <button onclick="handlePrevPage()" class="absolute left-2 sm:left-4 md:left-8 z-30 bg-black/40 hover:bg-roseGold text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-300 border border-white/30 hover:scale-110">
+                <i class="fa-solid fa-chevron-left text-lg sm:text-xl"></i>
+            </button>
+
             <div id="myBook" class="book-shadow rounded-lg"></div>
+
+            <!-- Seta Direita -->
+            <button onclick="handleNextPage()" class="absolute right-2 sm:right-4 md:right-8 z-30 bg-black/40 hover:bg-roseGold text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm transition-all duration-300 border border-white/30 hover:scale-110">
+                <i class="fa-solid fa-chevron-right text-lg sm:text-xl"></i>
+            </button>
         </div>
     </main>
 
-    <!-- Modal de Zoom -->
+    <!-- Modal de Zoom com Slideshow (Play/Pause) -->
     <div id="zoomModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-2 sm:p-4">
         <div class="relative w-full max-w-4xl max-h-[95vh] flex flex-col items-center justify-center">
             <button onclick="closeZoomModal()" class="absolute top-2 right-2 md:-top-10 md:right-0 text-white text-3xl hover:text-roseGold z-50 bg-black/50 md:bg-transparent px-3 py-1 rounded-full"><i class="fa-solid fa-xmark"></i></button>
             <div class="relative flex items-center justify-center w-full">
                 <button onclick="zoomPrev(event)" class="absolute left-1 md:-left-12 text-white text-2xl md:text-3xl hover:text-roseGold bg-black/60 p-2.5 rounded-full transition z-10"><i class="fa-solid fa-chevron-left"></i></button>
-                <img id="zoomedImage" src="" class="max-w-[85vw] max-h-[75vh] object-contain rounded-lg shadow-2xl border-2 border-white">
+                <img id="zoomedImage" src="" class="max-w-[85vw] max-h-[70vh] object-contain rounded-lg shadow-2xl border-2 border-white">
                 <button onclick="zoomNext(event)" class="absolute right-1 md:-right-12 text-white text-2xl md:text-3xl hover:text-roseGold bg-black/60 p-2.5 rounded-full transition z-10"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
-            <p id="zoomedCaption" class="text-white font-serif text-sm md:text-base mt-3 text-center px-4"></p>
+            
+            <p id="zoomedCaption" class="text-white font-serif text-sm md:text-base mt-2 text-center px-4"></p>
+
+            <!-- Botões de Play/Pause do Zoom -->
+            <div class="flex items-center gap-3 mt-3">
+                <button id="zoomPlayBtn" onclick="toggleZoomSlideshow()" class="bg-roseGold hover:bg-roseGold/90 text-white text-xs px-4 py-1.5 rounded-full shadow-lg transition flex items-center gap-1.5 font-medium border border-white/30">
+                    <i id="zoomPlayIcon" class="fa-solid fa-play"></i> <span id="zoomPlayLabel">Apresentar</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -186,6 +204,19 @@
                 <div class="mb-3">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1">Descrição / Citação</label>
                     <input type="text" id="cfgDesc" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+
+                <!-- SELETOR DE TEMAS PRÉ-CONFIGURADOS -->
+                <div class="mb-3">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-1"><i class="fa-solid fa-palette"></i> Tema Pré-Configurado</label>
+                    <select id="presetThemeSelect" onchange="applyPresetTheme()" class="w-full px-3 py-2 border rounded-lg text-sm bg-softRose/20 text-gray-800 font-medium">
+                        <option value="">-- Personalizado --</option>
+                        <option value="roseGold">Rosé Gold Clássico</option>
+                        <option value="gold">Dourado Imperial</option>
+                        <option value="silver">Prateado Elegante</option>
+                        <option value="wineGold">Vinho & Ouro</option>
+                        <option value="emerald">Pérola & Esmeralda</option>
+                    </select>
                 </div>
 
                 <!-- GERENCIAR PÁGINAS SEM LIMITE -->
@@ -309,6 +340,7 @@
         let allPhotosFlat = [];
         let currentZoomIndex = 0;
         let slideshowInterval = null;
+        let zoomSlideshowInterval = null;
         
         let albumConfig = {
             title: "Cerimônia & Festa",
@@ -382,6 +414,36 @@
             }
         }
 
+        // Aplicação de temas pré-configurados no modal de configurações
+        function applyPresetTheme() {
+            const preset = document.getElementById('presetThemeSelect').value;
+            const borderInput = document.getElementById('cfgBorderColor');
+            const bgInput = document.getElementById('cfgBgColor');
+            const textInput = document.getElementById('cfgTextColor');
+
+            if (preset === 'roseGold') {
+                borderInput.value = '#D4AF37';
+                bgInput.value = '#FFFDF2';
+                textInput.value = '#374151';
+            } else if (preset === 'gold') {
+                borderInput.value = '#B8860B';
+                bgInput.value = '#FFFFF0';
+                textInput.value = '#2B2B2B';
+            } else if (preset === 'silver') {
+                borderInput.value = '#C0C0C0';
+                bgInput.value = '#F8F9FA';
+                textInput.value = '#1F2937';
+            } else if (preset === 'wineGold') {
+                borderInput.value = '#D4AF37';
+                bgInput.value = '#FAF0F2';
+                textInput.value = '#4A0E17';
+            } else if (preset === 'emerald') {
+                borderInput.value = '#065F46';
+                bgInput.value = '#F0FDF4';
+                textInput.value = '#064E3B';
+            }
+        }
+
         function toggleAudio() {
             const audio = document.getElementById('bgAudio');
             const icon = document.getElementById('audioIcon');
@@ -436,17 +498,14 @@
             if (pageFlip) pageFlip.flipPrev(); 
         }
 
-        // Função para pular direto para a página digitada
         function jumpToPage() {
             tryPlayAudio();
             const inputVal = parseInt(document.getElementById('jumpPageInput').value);
             if (isNaN(inputVal)) return;
             if (pageFlip) {
                 const totalPages = pageFlip.getPageCount();
-                // A página 1 digitada pelo usuário corresponde ao índice 2 ou equivalente (Capa = 0, Padrinhos = 1, Pág 1 = 2...)
-                // No pageFlip, o índice da página numerada `pNum` é geralmente `pNum + 1` (considerando capa e padrinhos antes)
                 let targetIndex = inputVal + 1;
-                if (inputVal <= 0) targetIndex = 0; // Capa
+                if (inputVal <= 0) targetIndex = 0;
                 if (targetIndex < totalPages) {
                     pageFlip.flip(targetIndex);
                 } else {
@@ -844,24 +903,60 @@
             updateZoomModalContent();
             document.getElementById('zoomModal').classList.remove('hidden');
         }
-        function closeZoomModal() { document.getElementById('zoomModal').classList.add('hidden'); }
+
+        function closeZoomModal() {
+            stopZoomSlideshow();
+            document.getElementById('zoomModal').classList.add('hidden');
+        }
+
         function updateZoomModalContent() {
             if (allPhotosFlat.length === 0) return;
             const photo = allPhotosFlat[currentZoomIndex];
             document.getElementById('zoomedImage').src = photo.image_url;
             document.getElementById('zoomedCaption').innerText = `${photo.title} (Por: ${photo.author})`;
         }
+
         function zoomPrev(e) {
             if (e) e.stopPropagation();
             if (allPhotosFlat.length === 0) return;
             currentZoomIndex = (currentZoomIndex - 1 + allPhotosFlat.length) % allPhotosFlat.length;
             updateZoomModalContent();
         }
+
         function zoomNext(e) {
             if (e) e.stopPropagation();
             if (allPhotosFlat.length === 0) return;
             currentZoomIndex = (currentZoomIndex + 1) % allPhotosFlat.length;
             updateZoomModalContent();
+        }
+
+        // Função de Slideshow no Modo Zoom (Play/Pause)
+        function toggleZoomSlideshow() {
+            const icon = document.getElementById('zoomPlayIcon');
+            const label = document.getElementById('zoomPlayLabel');
+
+            if (zoomSlideshowInterval) {
+                stopZoomSlideshow();
+            } else {
+                icon.className = "fa-solid fa-pause";
+                label.innerText = "Pausar";
+                zoomSlideshowInterval = setInterval(() => {
+                    zoomNext();
+                }, 3000);
+            }
+        }
+
+        function stopZoomSlideshow() {
+            if (zoomSlideshowInterval) {
+                clearInterval(zoomSlideshowInterval);
+                zoomSlideshowInterval = null;
+            }
+            const icon = document.getElementById('zoomPlayIcon');
+            const label = document.getElementById('zoomPlayLabel');
+            if (icon && label) {
+                icon.className = "fa-solid fa-play";
+                label.innerText = "Apresentar";
+            }
         }
     </script>
 </body>
