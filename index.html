@@ -49,14 +49,16 @@
     </script>
     <style>
         :root {
+            --bg-body-color: #fffaf5;
             --bg-page-color: #fffdfa;
             --text-page-color: #374151;
         }
         body {
-            background: linear-gradient(135deg, #fffaf5 0%, #f7e7ce 50%, #ffe4e1 100%);
+            background: var(--bg-body-color);
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
+            transition: background 0.5s ease;
         }
         .page {
             background-color: var(--bg-page-color) !important;
@@ -65,7 +67,7 @@
             border: 1px solid #f0e0d6;
         }
         .hard-cover {
-            background: linear-gradient(145deg, #ffffff 0%, #f7e7ce 100%);
+            background: linear-gradient(145deg, #ffffff 0%, var(--bg-page-color) 100%);
         }
         .book-shadow {
             box-shadow: 0 20px 40px rgba(183, 110, 121, 0.25);
@@ -210,23 +212,23 @@
                 <div class="mb-4">
                     <label class="block text-xs font-bold uppercase tracking-wider text-roseGold mb-2"><i class="fa-solid fa-palette"></i> Escolha um Estilo Visual (Miniaturas)</label>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                        <div onclick="selectTheme('roseGold', '#D4AF37', '#FFFDF2', '#374151')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-roseGold rounded-xl p-2.5 text-center transition bg-[#FFFDF2] shadow-sm">
+                        <div onclick="selectTheme('#FFFaf5', '#FFFDF2', '#D4AF37', '#374151')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-roseGold rounded-xl p-2.5 text-center transition bg-[#FFFDF2] shadow-sm">
                             <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #D4AF37; color: #374151;">Rosé Gold</div>
                             <span class="text-[10px] font-semibold text-gray-700">Clássico Suave</span>
                         </div>
-                        <div onclick="selectTheme('gold', '#B8860B', '#FFFFF0', '#2B2B2B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-amber-600 rounded-xl p-2.5 text-center transition bg-[#FFFFF0] shadow-sm">
+                        <div onclick="selectTheme('#FFFBEB', '#FFFFF0', '#B8860B', '#2B2B2B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-amber-600 rounded-xl p-2.5 text-center transition bg-[#FFFFF0] shadow-sm">
                             <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #B8860B; color: #2B2B2B;">Dourado</div>
                             <span class="text-[10px] font-semibold text-gray-700">Imperial</span>
                         </div>
-                        <div onclick="selectTheme('silver', '#C0C0C0', '#F8F9FA', '#1F2937')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-xl p-2.5 text-center transition bg-[#F8F9FA] shadow-sm">
+                        <div onclick="selectTheme('#F3F4F6', '#F8F9FA', '#C0C0C0', '#1F2937')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-gray-400 rounded-xl p-2.5 text-center transition bg-[#F8F9FA] shadow-sm">
                             <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #C0C0C0; color: #1F2937;">Prateado</div>
                             <span class="text-[10px] font-semibold text-gray-700">Elegante</span>
                         </div>
-                        <div onclick="selectTheme('wineGold', '#D4AF37', '#FAF0F2', '#4A0E17')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-rose-800 rounded-xl p-2.5 text-center transition bg-[#FAF0F2] shadow-sm">
+                        <div onclick="selectTheme('#FDF2F4', '#FAF0F2', '#D4AF37', '#4A0E17')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-rose-800 rounded-xl p-2.5 text-center transition bg-[#FAF0F2] shadow-sm">
                             <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #D4AF37; color: #4A0E17;">Vinho & Ouro</div>
                             <span class="text-[10px] font-semibold text-gray-700">Luxuoso</span>
                         </div>
-                        <div onclick="selectTheme('emerald', '#065F46', '#F0FDF4', '#064E3B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-emerald-600 rounded-xl p-2.5 text-center transition bg-[#F0FDF4] shadow-sm">
+                        <div onclick="selectTheme('#ECFDF5', '#F0FDF4', '#065F46', '#064E3B')" class="theme-card cursor-pointer border-2 border-gray-200 hover:border-emerald-600 rounded-xl p-2.5 text-center transition bg-[#F0FDF4] shadow-sm">
                             <div class="h-6 rounded border-2 mb-1 flex items-center justify-center text-[10px] font-bold" style="border-color: #065F46; color: #064E3B;">Esmeralda</div>
                             <span class="text-[10px] font-semibold text-gray-700">Pérola Verde</span>
                         </div>
@@ -245,7 +247,11 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-2 mb-3">
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Fundo da Tela (Início)</label>
+                        <input type="color" id="cfgBodyBgColor" class="w-full h-9 px-1 py-1 border rounded-lg cursor-pointer" value="#fffaf5">
+                    </div>
                     <div>
                         <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-700 mb-1">Borda da Capa</label>
                         <input type="color" id="cfgBorderColor" class="w-full h-9 px-1 py-1 border rounded-lg cursor-pointer" value="#D4AF37">
@@ -360,6 +366,7 @@
             title: "Cerimônia & Festa",
             subtitle: "Álbum de Memórias",
             desc: '"O amor tudo sofre, tudo crê, tudo espera, tudo suporta."',
+            body_bg_color: "#fffaf5",
             border_color: "#D4AF37",
             page_bg_color: "#fffdfa",
             text_color: "#374151",
@@ -417,6 +424,7 @@
 
         function applyConfigToUI() {
             document.getElementById('headerTitle').innerText = albumConfig.title || "Nosso Casamento";
+            document.documentElement.style.setProperty('--bg-body-color', albumConfig.body_bg_color || '#fffaf5');
             document.documentElement.style.setProperty('--bg-page-color', albumConfig.page_bg_color || '#fffdfa');
             document.documentElement.style.setProperty('--text-page-color', albumConfig.text_color || '#374151');
             
@@ -428,13 +436,13 @@
             }
         }
 
-        // Seleção de temas por clique nas miniaturas visuais
-        function selectTheme(themeName, borderColor, bgColor, textColor) {
+        // Seleção de temas por clique nas miniaturas visuais (atualiza tela inicial e páginas)
+        function selectTheme(bodyBg, pageBg, borderColor, textColor) {
+            document.getElementById('cfgBodyBgColor').value = bodyBg;
+            document.getElementById('cfgBgColor').value = pageBg;
             document.getElementById('cfgBorderColor').value = borderColor;
-            document.getElementById('cfgBgColor').value = bgColor;
             document.getElementById('cfgTextColor').value = textColor;
 
-            // Destaque visual na miniatura selecionada
             document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('ring-4', 'ring-roseGold'));
             event.currentTarget.classList.add('ring-4', 'ring-roseGold');
         }
@@ -554,6 +562,7 @@
             document.getElementById('cfgSubtitle').value = albumConfig.subtitle || '';
             document.getElementById('cfgDesc').value = albumConfig.desc || '';
             document.getElementById('cfgTotalPages').value = albumConfig.total_pages || 2;
+            document.getElementById('cfgBodyBgColor').value = albumConfig.body_bg_color || '#fffaf5';
             document.getElementById('cfgBorderColor').value = albumConfig.border_color || '#D4AF37';
             document.getElementById('cfgBgColor').value = albumConfig.page_bg_color || '#fffdfa';
             document.getElementById('cfgTextColor').value = albumConfig.text_color || '#374151';
@@ -582,7 +591,8 @@
             albumConfig.desc = document.getElementById('cfgDesc').value;
             albumConfig.total_pages = parseInt(document.getElementById('cfgTotalPages').value) || 2;
             
-            // Garantir que as cores dos seletores sejam capturadas corretamente ao salvar
+            // Captura correta de todas as cores customizadas
+            albumConfig.body_bg_color = document.getElementById('cfgBodyBgColor').value;
             albumConfig.border_color = document.getElementById('cfgBorderColor').value;
             albumConfig.page_bg_color = document.getElementById('cfgBgColor').value;
             albumConfig.text_color = document.getElementById('cfgTextColor').value;
@@ -927,7 +937,6 @@
             updateZoomModalContent();
         }
 
-        // Função de Slideshow no Modo Zoom (Play/Pause)
         function toggleZoomSlideshow() {
             const icon = document.getElementById('zoomPlayIcon');
             const label = document.getElementById('zoomPlayLabel');
