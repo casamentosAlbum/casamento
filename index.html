@@ -436,7 +436,6 @@
             }
         }
 
-        // Seleção de temas por clique nas miniaturas visuais (atualiza tela inicial e páginas)
         function selectTheme(bodyBg, pageBg, borderColor, textColor) {
             document.getElementById('cfgBodyBgColor').value = bodyBg;
             document.getElementById('cfgBgColor').value = pageBg;
@@ -545,7 +544,6 @@
             if (pageFlip) pageFlip.flip(0);
         }
 
-        // Validação de Senha para Configurações (Senha = 123)
         function requestPasswordForConfig() {
             const pwd = prompt("Digite a senha para acessar as configurações:");
             if (pwd === "123") {
@@ -591,7 +589,6 @@
             albumConfig.desc = document.getElementById('cfgDesc').value;
             albumConfig.total_pages = parseInt(document.getElementById('cfgTotalPages').value) || 2;
             
-            // Captura correta de todas as cores customizadas
             albumConfig.body_bg_color = document.getElementById('cfgBodyBgColor').value;
             albumConfig.border_color = document.getElementById('cfgBorderColor').value;
             albumConfig.page_bg_color = document.getElementById('cfgBgColor').value;
@@ -681,7 +678,6 @@
             loadCloudData();
         }
 
-        // Validação de Senha para Edição de Fotos (Senha = 123)
         function requestPasswordForEdit(id, title, author, category, pageNum) {
             const pwd = prompt("Digite a senha para editar esta foto:");
             if (pwd === "123") {
@@ -737,7 +733,6 @@
             loadCloudData();
         }
 
-        // Validação de Senha para Exclusão de Fotos (Senha = 123)
         async function deletePhoto(id) {
             const pwd = prompt("Digite a senha para excluir esta foto:");
             if (pwd !== "123") {
@@ -771,7 +766,7 @@
                         </div>
             `;
             if (albumConfig.cover_image) {
-                coverContent += `<div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-goldAccent shadow-lg my-auto bg-gray-100 flex items-center justify-center p-1"><img src="${albumConfig.cover_image}" class="w-full h-full object-contain"></div>`;
+                coverContent += `<div class="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-lg overflow-hidden border-4 border-goldAccent shadow-lg my-auto bg-gray-100 flex items-center justify-center p-0"><img src="${albumConfig.cover_image}" class="w-full h-full object-cover"></div>`;
             } else {
                 coverContent += `<div class="my-auto"><i class="fa-solid fa-heart text-goldAccent text-4xl sm:text-5xl animate-pulse"></i></div>`;
             }
